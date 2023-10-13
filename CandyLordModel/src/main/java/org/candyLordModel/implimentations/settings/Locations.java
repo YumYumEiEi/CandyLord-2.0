@@ -166,6 +166,19 @@ public enum Locations implements TradeLocation {
     EnumMap<Candies, Long> candyPrices;
     EnumMap<Locations, Long> travelCosts;
 
+    public Map<Candies, Long> getCandyPriceList() {
+        return candyPrices;
+    }
+
+    public static HashMap<String, Long> getTravelCostList(Locations currentLocation) {
+        HashMap<String, Long> returnValue = new HashMap<>();
+        for (Locations location :
+                Locations.values())  {
+            returnValue.put(location.name(), currentLocation.getTravelPrice(location));
+        }
+        return returnValue;
+    }
+
     public abstract void setTravelMap(EnumMap<Locations, Long> travelMap);
 
     private Locations() {

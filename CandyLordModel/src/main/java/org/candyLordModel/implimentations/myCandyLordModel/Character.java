@@ -1,21 +1,22 @@
 package org.candyLordModel.implimentations.myCandyLordModel;
 
+import org.candyLordModel.api.TrenchcoatOffer;
 import org.candyLordModel.implimentations.exceptions.*;
 import org.candyLordModel.implimentations.settings.Candies;
 import org.candyLordModel.implimentations.settings.DefaultSettings;
 import org.candyLordModel.implimentations.settings.Locations;
 
-import java.util.EnumMap;
+import java.util.*;
 
 class Character {
+    private final CandyInventory candyInventory;
     private long cash;
     private int health;
     private Locations currentLocation;
     private final String characterName;
     private int statusPoints;
-    private final EnumMap<Candies, Integer> candyInventory;
-    private int capacity;
     private final Janitor janitor;
+    private Weapon myCandyLordWeapon;
 
     Character(String characterName) {
         this.characterName = characterName;
@@ -23,9 +24,9 @@ class Character {
         this.currentLocation = Locations.getRandomLocation();
         this.cash = DefaultSettings.START_CASH;
         this.statusPoints = DefaultSettings.START_STATUS_POINTS;
-        this.candyInventory = Candies.getEmptyCandyInventory();
-        this.capacity = DefaultSettings.START_CAPACITY;
+        this.candyInventory = new CandyInventory();
         this.janitor = new Janitor(this);
+        this.myCandyLordWeapon = MyCandyLordWeapon.FIST;
     }
 
 
@@ -70,9 +71,7 @@ class Character {
     }
 
     private boolean hasEnoughPlaceInInventory(int quantity) {
-        int[] sum = new int[]{quantity};
-        candyInventory.forEach((candy, amount) -> sum[0] += amount);
-        return capacity >= sum[0];
+        return candyInventory.hasEnoughPlaceInInventory(quantity);
     }
 
     public void changeCash(long amount) {
@@ -145,6 +144,64 @@ class Character {
         return daysTillHealthy;
     }
 
+    /**
+     *
+     * @param offer
+     *
+     * @throws NotEnoughMoneyException Is thrown, when the player does not have enough money to buy the trenchcoat
+     */
+    public void acceptTranchcoatOffer(TrenchcoatOffer offer) {
+        if(cash < offer.getPrice()){
+            throw new NotEnoughMoneyException("You don't have enough cash to buy this fashionable trenchcoat!");
+        }
+        changeCash(-offer.getPrice());
+        setCapacity(offer.getCapacity());
+    }
+
+    /**
+     *
+     * @param weapon
+     * @param price
+     *
+     * @throws NotEnoughMoneyException Is thrown, when the player does not have enough money to buy weapon
+     */
+    public void acceptWeaponOffer(MyCandyLordWeapon weapon, long price) {
+        if(cash < price){
+            throw new NotEnoughMoneyException("You don't have the money for this weapon");
+        }
+        setWeapon(weapon);
+        changeCash(-price);
+
+    }
+
+    public void fleeFromBattle() {
+        statusPoints--;
+    }
+
+    public void copyInventoryWithoutEnum(HashMap<String, Integer> inventory) {
+        candyInventory.copyInventoryWithoutEnum(inventory);
+    }
+
+    public int getWeaponDMG() {
+        return getWeapon().getDMG();
+    }
+
+    public int getWeaponAccuracy() {
+        return getWeapon().getAccuracy();
+    }
+
+    public Integer getJanitorAnger() {
+        return janitor.getAnger();
+    }
+
+    public void setWeapon(MyCandyLordWeapon myCandyLordWeapon) {
+        this.myCandyLordWeapon = myCandyLordWeapon;
+    }
+
+    public Weapon getWeapon() {
+        return this.myCandyLordWeapon;
+    }
+
     public void setBrokenDeadlines(int amount) {
         janitor.setBrokenDeadlines(amount);
     }
@@ -174,7 +231,7 @@ class Character {
     }
 
     public void setCapacity(int capacity) {
-        this.capacity = capacity;
+        candyInventory.setCapacity(capacity);
     }
 
     public long getCash() {
@@ -182,7 +239,7 @@ class Character {
     }
 
     public int getCapacity() {
-        return capacity;
+        return candyInventory.getCapacity();
     }
 
     public int getStatusPoints() {

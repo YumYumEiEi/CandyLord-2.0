@@ -1,39 +1,42 @@
 package org.candyLordModel.implimentations.myCandyLordModel;
 
+import org.candyLordModel.api.EventAnswer;
+import org.candyLordModel.api.TrenchcoatOffer;
 import org.candyLordModel.implimentations.exceptions.*;
 import org.candyLordModel.implimentations.settings.Candies;
 import org.candyLordModel.implimentations.settings.Locations;
 import org.candyLordModel.implimentations.util.EnumUtil;
-import org.candyLordModel.interfaces.CandyLordModelApi;
+import org.candyLordModel.api.CandyLordModelApi;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
-public class MyCandyLordModel implements CandyLordModelApi, Testable {
+public
+class MyCandyLordModel implements CandyLordModelApi, Testable {
     private static MyCandyLordModel instance;
 
     private final Character character;
     private int timer;
     private long piggyBank;
-    private EnumSet<Events> eventList;
+    private EventHandler eventHandler;
 
-    public static MyCandyLordModel getInstance(String characterName){
-        if(instance == null){
+    public static MyCandyLordModel getInstance(String characterName) {
+        if (instance == null) {
             instance = new MyCandyLordModel(characterName);
         }
         return instance;
     }
+
+    public static MyCandyLordModel getTestModel() {
+        return new MyCandyLordModel("Test Character");
+    }
+
     private MyCandyLordModel(String characterName) {
         character = new Character(characterName);
         this.timer = 0;
-    }
-
-    private ArrayList<Event> setUpEvents() {
-        ArrayList<Event> tmp = new ArrayList<>();
-        tmp.add(getRowdyEvent());
-        return tmp;
-
+        this.eventHandler = new EventHandler(this);
     }
 
     @Override
@@ -51,10 +54,8 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
     }
 
     /**
-     *
      * @param candyName
      * @param quantity
-     *
      * @throws NotEnoughCandyException Is thrown when a Player does not have enough candy in the inventory
      */
     @Override
@@ -64,27 +65,25 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
     }
 
     /**
-     *
      * @param locationName
-     *
-     * @throws NotEnoughMoneyException Is thrown, when the player does not have enough money to pay the travel cost
+     * @throws NotEnoughMoneyException    Is thrown, when the player does not have enough money to pay the travel cost
      * @throws AlreadyAtTheChosenLocation Is thrown, when the player is already at the location he should travel to
-     * @throws NoSuchLocationFound Is thrown, when the player wants to travel to a not defined location
+     * @throws NoSuchLocationFound        Is thrown, when the player wants to travel to a not defined location
      */
     @Override
     public void
-    travelTo(String locationName) {
-        try{
+    changeLocation(String locationName) {
+        try {
             Locations location = EnumUtil.stingToEnum(Locations.class, locationName);
             character.travelTo(location);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new NoSuchLocationFound(e, "This location doesn't excist!");
         }
     }
 
     @Override
     public void putCashInPiggyBank(long cash) {
-        if(character.getCash() < cash){
+        if (character.getCash() < cash) {
             throw new NotEnoughMoneyException("You don't have so much money for the piggy bank!");
         }
         piggyBank += cash;
@@ -93,19 +92,17 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
 
     @Override
     public void retrieveMoneyFromPiggyBank(long cash) {
-        if(piggyBank < cash){
+        if (piggyBank < cash) {
             throw new NotEnoughtMoneyInPiggyBankException("You don't have that much money in the piggy bank!");
         }
         putCashInPiggyBank(-cash);
     }
 
     /**
-     *
      * @param amount
-     *
      * @throws ToLowBorrowAmountException Is thrown, when the player tries borrows less than 1000 cent
      * @throws ToLessCredibilityException Is thrown, when the player wants to borrow more than his status points allow
-     * @throws HasAlreadyDebtException Is thrown, when the player has already debt
+     * @throws HasAlreadyDebtException    Is thrown, when the player has already debt
      */
     @Override
     public void borrowCashFromJanitor(long amount) {
@@ -113,11 +110,9 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
     }
 
     /**
-     *
      * @param amount
-     *
      * @throws NotEnoughMoneyException Is thrown, when the player wants to pay back more than he possesses
-     * @throws ToMuchPayBackException Is thrown, when the player tries to pay back more than he has debt
+     * @throws ToMuchPayBackException  Is thrown, when the player tries to pay back more than he has debt
      */
     @Override
     public void payBackTeJanitor(long amount) {
@@ -125,10 +120,10 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
     }
 
     @Override
-    public void nextDay() {
+    public EventAnswer nextDay() {
         timer++;
         character.nextDay();
-        eventList.get(0).execute(this);
+        return eventHandler.nextDay();
     }
 
     @Override
@@ -139,9 +134,82 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
         }
     }
 
+    /**
+     * @param offer
+     * @throws NotEnoughMoneyException Is thrown, when the player does not have enough money to buy the trenchcoat
+     */
+    @Override
+    public void acceptTranchcoatOffer(TrenchcoatOffer offer) {
+        character.acceptTranchcoatOffer(offer);
+    }
+
+    /**
+     * @param offer
+     * @throws NotEnoughMoneyException Is thrown, when the player does not have enough money to buy weapon
+     */
+    @Override
+    public void acceptWeaponOffer(WeaponOffer offer) {
+        MyCandyLordWeapon weapon = EnumUtil.stingToEnum(MyCandyLordWeapon.class, offer.getName());
+        character.acceptWeaponOffer(weapon, offer.getPrice());
+    }
+
+    @Override
+    public void fleeFromBattle() {
+        character.fleeFromBattle();
+    }
+
     @Override
     public int getPassedDays() {
         return timer;
+    }
+
+    @Override
+    public void getHit(int dmgValue) {
+        character.decreaseHealth(dmgValue);
+    }
+
+    @Override
+    public HashMap<String, Integer> getCandyInventory() {
+        HashMap<String, Integer> inventory = new HashMap<>();
+        character.copyInventoryWithoutEnum(inventory);
+        return inventory;
+    }
+
+    @Override
+    public TreeMap getCandyPriceList() {
+        TreeMap<String, Long> priceList = new TreeMap<>();
+        character.getCurrentLocation().getCandyPriceList().forEach(((candies, price) -> priceList.put(candies.toString(), price)));
+        return priceList;
+    }
+
+    @Override
+    public HashMap<String, Long> getLocationPriceList() {
+       return Locations.getTravelCostList(character.getCurrentLocation());
+    }
+
+    @Override
+    public Integer getAttention() {
+        return 0;
+    }
+
+    @Override
+    public Integer getJanitorAnger() {
+        return character.getJanitorAnger();
+    }
+
+    @Override
+    public int getProtection() {
+        return 0;
+    }
+
+    @Override
+    public int getWeaponAmount() {
+        return 0;
+    }
+
+    @Override
+    public String getWeaponType() {
+        return null;
     }
 
     @Override
@@ -232,17 +300,48 @@ public class MyCandyLordModel implements CandyLordModelApi, Testable {
     }
 
     @Override
-    public void setUpNextEvent(Event event) {
-        eventList = new ArrayList<Event>();
-        eventList.add(event);
+    public void setUpNextEvent(MyCandyLordEvents event, Object... objects) {
+        eventHandler.setUpNextEvent(event);
     }
 
     @Override
-    public Event getRowdyEvent() {
-        return () -> {
-            long cash = character.getCash();
-            character.changeCash(-cash);
-        };
+    public Locations getPlayerLocation() {
+        return character.getCurrentLocation();
+    }
+
+    @Override
+    public void setWeaponProvider(WeaponProvider provider) {
+        eventHandler.setWeaponProvider(provider);
+    }
+
+    @Override
+    public int getWeaponDMG() {
+        return character.getWeaponDMG();
+    }
+
+    @Override
+    public int getWeaponAccuracy() {
+        return character.getWeaponAccuracy();
+    }
+
+    @Override
+    public void setWeapon(MyCandyLordWeapon myCandyLordWeapon) {
+        character.setWeapon(myCandyLordWeapon);
+    }
+
+    @Override
+    public MyCandyLordWeapon getWeapon() {
+        return (MyCandyLordWeapon) character.getWeapon();
+    }
+
+    @Override
+    public void setLocationProvider(LocationProvider provider) {
+        eventHandler.setLocationProvider(provider);
+    }
+
+    @Override
+    public void setCandyProvider(CandyProvider provider) {
+        eventHandler.setCandyProvider(provider);
     }
 
     @Override

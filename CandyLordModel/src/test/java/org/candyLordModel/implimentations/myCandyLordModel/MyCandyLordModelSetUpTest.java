@@ -2,7 +2,6 @@ package org.candyLordModel.implimentations.myCandyLordModel;
 import org.candyLordModel.implimentations.settings.Candies;
 import org.candyLordModel.implimentations.settings.DefaultSettings;
 import org.candyLordModel.implimentations.settings.Locations;
-import org.candyLordModel.interfaces.CandyLordModelApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +17,7 @@ class MyCandyLordModelSetUpTest {
 
     @BeforeEach
     public void setUp() {
-        testModel = new MyCandyLordModel(CHARACTER_NAME);
+        testModel = MyCandyLordModel.getInstance(CHARACTER_NAME);
     }
 
     @Test

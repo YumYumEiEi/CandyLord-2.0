@@ -58,6 +58,10 @@ public class Janitor {
         timer = 7;
     }
 
+    public Integer getAnger() {
+        return brokenDeadlines;
+    }
+
     public void setBrokenDeadlines(int amount) {
         this.brokenDeadlines = amount;
     }

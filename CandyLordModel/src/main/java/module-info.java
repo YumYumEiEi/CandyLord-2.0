@@ -1,3 +1,3 @@
 module CandyLordModel {
-    exports org.candyLordModel.interfaces;
+    exports org.candyLordModel.api;
 }

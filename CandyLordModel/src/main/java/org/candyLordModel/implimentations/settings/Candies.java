@@ -11,7 +11,7 @@ public enum Candies implements TradeGood {
     CIRCLE_SHOCK(){
         @Override
         public String toString() {
-            return "Circle Schock";
+            return "Circle Shock";
         }
         public long getPrice(){
            return 15 + (long) (((((Math.random() * 60) - 30)) / 100) * 15);
@@ -20,7 +20,7 @@ public enum Candies implements TradeGood {
     CHOCOLATE_BAR() {
         @Override
         public String toString() {
-            return "Chockolate Bar";
+            return "Chocolate Bar";
         }
         public long getPrice(){
             return 75 + (long) (((((Math.random() * 60) - 30)) / 100) * 75);
@@ -48,7 +48,7 @@ public enum Candies implements TradeGood {
     N_AND_N(){
         @Override
         public String toString() {
-            return "N&N";
+            return "N and N";
         }
         public long getPrice(){
             return 9375 + (long) (((((Math.random() * 60) - 30)) / 100) * 9375);

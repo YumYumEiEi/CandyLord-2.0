@@ -1,21 +1,24 @@
-package org.candyLordModel.interfaces;
+package org.candyLordModel.api;
 
 import org.candyLordModel.implimentations.myCandyLordModel.MyCandyLordModel;
+import org.candyLordModel.implimentations.myCandyLordModel.WeaponOffer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 public interface CandyLordModelApi {
 
     public static CandyLordModelApi getInstance(String characterName){
-        return new MyCandyLordModel(characterName);
+        return MyCandyLordModel.getInstance(characterName);
     }
 
     void buyCandy(String candyName, int quantity);
 
     void sellCandy(String name, int amount);
 
-    void travelTo(String locationName);
+    void changeLocation(String locationName);
 
     void putCashInPiggyBank(long cash);
 
@@ -25,11 +28,35 @@ public interface CandyLordModelApi {
 
     void payBackTeJanitor(long amount);
 
-    void nextDay();
+    EventAnswer nextDay();
 
     void goToHospital();
 
+    void acceptTranchcoatOffer(TrenchcoatOffer offer);
+
+    void acceptWeaponOffer(WeaponOffer offer);
+
+    void fleeFromBattle();
+
     int getPassedDays();
+
+    void getHit(int dmgValue);
+
+    HashMap<String, Integer> getCandyInventory();
+
+    TreeMap getCandyPriceList();
+
+    HashMap<String, Long> getLocationPriceList();
+
+    Integer getAttention();
+
+    Integer getJanitorAnger();
+
+    int getProtection();
+
+    int getWeaponAmount();
+
+    String getWeaponType();
 
     void setHealth(int health);
 

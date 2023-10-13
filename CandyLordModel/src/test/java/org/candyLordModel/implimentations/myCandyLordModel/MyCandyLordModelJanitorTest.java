@@ -14,8 +14,7 @@ class MyCandyLordModelJanitorTest {
 
     @BeforeEach
     void setUp() {
-        testModel = new MyCandyLordModel(CHARACTER_NAME);
-        testModel.setUpNextEvent(() -> {});
+        testModel = MyCandyLordModel.getTestModel();
     }
 
     @Test

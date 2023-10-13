@@ -3,6 +3,8 @@ package org.candyLordModel.implimentations.myCandyLordModel;
 import org.candyLordModel.implimentations.settings.Candies;
 import org.candyLordModel.implimentations.settings.Locations;
 
+import java.util.Map;
+
 public interface Testable {
     void setCandyPriceAtCurrendLocation(Candies candies, int cash);
 
@@ -10,9 +12,23 @@ public interface Testable {
 
     void setTravelCostToLocationFromCurrendLocation(Locations location, long cash);
 
-    void setUpNextEvent(Event event);
+    void setUpNextEvent(MyCandyLordEvents event, Object...objects);
 
-    Event getRowdyEvent();
+    Locations getPlayerLocation();
+
+    void setWeaponProvider(WeaponProvider provider);
+
+    int getWeaponDMG();
+
+    int getWeaponAccuracy();
+
+    void setWeapon(MyCandyLordWeapon myCandyLordWeapon);
+
+    MyCandyLordWeapon getWeapon();
+
+    void setLocationProvider(LocationProvider provider);
+
+    void setCandyProvider(CandyProvider provider);
 
     void setBrokenDeadlines(int amount);
 

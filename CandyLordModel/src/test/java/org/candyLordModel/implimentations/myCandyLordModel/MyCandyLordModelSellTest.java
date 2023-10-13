@@ -15,7 +15,7 @@ public class MyCandyLordModelSellTest {
 
     @BeforeEach
     void setUp(){
-        testModel = new MyCandyLordModel(CHARACTER_NAME);
+        testModel = MyCandyLordModel.getTestModel();
     }
 
     @Test
